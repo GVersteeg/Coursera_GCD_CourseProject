@@ -15,28 +15,28 @@ library("reshape2")
 ##---- step 1: prepare the download (URL & landingplace) -----------------------
 myURL <- "https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip"
 myURL <- sub("^https", "http", myURL)
-if (!file.exists("data")) {
-        dir.create("data")
+if (!file.exists("GCDP_data")) {
+        dir.create("GCDP_data")
 }
 ##
 ##---- step 2: download the zip-file, unzip it and delete it------------------- 
-download.file(myURL, destfile = "./data/temp.zip", mode="wb")
+download.file(myURL, destfile = "./GCDP_data/temp.zip", mode="wb")
 dateDownloaded <- date()
-unzip("./data/temp.zip", exdir = "./data")
-unlink("./data/temp.zip")
+unzip("./GCDP_data/temp.zip", exdir = "./GCDP_data")
+unlink("./GCDP_data/temp.zip")
 ##
 ##-----------------------------------------------------------------------------
 ##----- PART 2. MAKING DATAFRAMES OF THE RELEVANT DATA ------------------------
 ##
 ##---- step 3: read all relevant txt.files into tibbles for speed in dplyr ----
-actLabels <- tbl_df(read.table("./data/UCI HAR Dataset/activity_labels.txt", header = FALSE, colClasses = "character"))
-features <- tbl_df(read.table("./data/UCI HAR Dataset/features.txt", header = FALSE, colClasses = "character"))
-trainSet <- tbl_df(read.table("./data/UCI HAR Dataset/train/X_train.txt", header = FALSE))
-testSet <- tbl_df(read.table("./data/UCI HAR Dataset/test/X_test.txt", header = FALSE))
-trainSubjects <- tbl_df(read.table("./data/UCI HAR Dataset/train/subject_train.txt", header = FALSE))
-testSubjects <- tbl_df(read.table("./data/UCI HAR Dataset/test/subject_test.txt", header = FALSE))
-trainActs <- tbl_df(read.table("./data/UCI HAR Dataset/train/y_train.txt", header = FALSE))
-testActs <- tbl_df(read.table("./data/UCI HAR Dataset/test/y_test.txt", header = FALSE))
+actLabels <- tbl_df(read.table("./GCDP_data/UCI HAR Dataset/activity_labels.txt", header = FALSE, colClasses = "character"))
+features <- tbl_df(read.table("./GCDP_data/UCI HAR Dataset/features.txt", header = FALSE, colClasses = "character"))
+trainSet <- tbl_df(read.table("./GCDP_data/UCI HAR Dataset/train/X_train.txt", header = FALSE))
+testSet <- tbl_df(read.table("./GCDP_data/UCI HAR Dataset/test/X_test.txt", header = FALSE))
+trainSubjects <- tbl_df(read.table("./GCDP_data/UCI HAR Dataset/train/subject_train.txt", header = FALSE))
+testSubjects <- tbl_df(read.table("./GCDP_data/UCI HAR Dataset/test/subject_test.txt", header = FALSE))
+trainActs <- tbl_df(read.table("./GCDP_data/UCI HAR Dataset/train/y_train.txt", header = FALSE))
+testActs <- tbl_df(read.table("./GCDP_data/UCI HAR Dataset/test/y_test.txt", header = FALSE))
 ##
 ##
 ##-----------------------------------------------------------------------------

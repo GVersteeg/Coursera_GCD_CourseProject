@@ -25,15 +25,19 @@ A further description of the files is given in de read.me file within the zipfil
 ***
 ## Goal of the script run_analysis.R
 Goal of the script (and assignment) is to retrieve the files that resulted from the research and to prepare a tidy data from them, that can be used for later analysis. The steps that are required to do so are:
-1. Merge the training and the test sets to create one data set.
-2. Extract only the measurements on the mean and standard deviation for each measurement.
-3. Use descriptive activity names to name the activities in the data set
-4. Appropriately label the data set with descriptive variable names.
-5. From the data set in step 4, create a second, independent tidy data set with the average of each variable for each activity and each subject.
+
+ 1. Merge the training and the test sets to create one data set.
+ 2. Extract only the measurements on the mean and standard deviation for each measurement.
+ 3. Use descriptive activity names to name the activities in the data set
+ 4. Appropriately label the data set with descriptive variable names.
+ 5. From the data set in step 4, create a second, independent tidy data set with the average of each variable for each activity and each subject.
 
 ***
 ## Important notes on design decisions made
 Some design decisions needed to be made, because the intended use of the resulting tidy dataset is not described.
+
+**Reading the original files of the web**
+I included reading the original zipped data in the script. Although this takes a few seconds, it feel that it makes running the script more reproducable, because ti does not rely on prior placement of the data in the working directory. By including the download of the orginal files, one can easily run the script on another computer without prior positioning of the source data files.
 
 **Order & grouping**
 I ordered the tidy dataset by activity and then subject, because step 5 of the assignment states "... tidy data set with the average of each variable ** for each activity and each subject**" and I just kept the same order as apparently requested.
@@ -55,6 +59,7 @@ I used a wide format for the tidy dataset. Hadley mentions that both are oké an
 
 **Tidiness of resulting data set**
 I think the resulting data set is tidy, because it:
+
     * only contains columns that refer to one and only one variable and there is a lack of information on how to interpret them in any other fashion.
     * all rows contain only one observation for one subject performing one activity (observational unit).
     * rows and columns are not defined by any value(s).
@@ -68,6 +73,7 @@ I tend to remove temporary files, to keep the working directory from cluttering 
 ### PART 1 - GETTING THE DATA
 
 **Step 0. Loading relevant packages**
+
     * "plyr" for using mapvalues to efficiently assign labels to activities
     * "dplyr" for fast data set manipulation on tibbles
     * "reshape2" for setting up the resulting tidy dataset
@@ -84,6 +90,7 @@ After unzipping, the zipfile is not needed anymore. Therefor the connection with
 
 **Step 3: make tables out of relevant files**
 I read all relevant tables into tbl_df (tibble) format for speed in dplyr:
+
     * activity_labels.txt (labels for activities, format character)
     * features.txt (all 561 variable names, format character)
     * X-train.txt (all of the measurements for subjectgroep "train")
@@ -97,16 +104,22 @@ I read all relevant tables into tbl_df (tibble) format for speed in dplyr:
 
 **Step 4: Prepare the names for the measurement columns**
 To setup valid, self-explanatory column names for the measurement variables, I took three steps to setup a vector that conatinas nice names for the columns of both main measurement data sets:
-    * used NameVector as vector with names derived from the features.txt file. Please note that features.txt contains invalid column names that will cause problems in dplyr::bind_rows and dplyr::select later on, therefor we need to make them valid.
-    * used "make.names"" to obtain legal and unique column names. Please note that make.names replaces illegal characters into dots, that we need to delete.
-    * used "sub"" to delete the resulting "double dot"'s and the "dot at the end"'s.
+
+    * I used NameVector as a vector with names derived from the features.txt file. 
+      Please note that features.txt contains invalid column names that will cause problems
+      in dplyr::bind_rows and dplyr::select later on, therefor we need to make them valid.
+    * I used "make.names" to obtain legal and unique column names.
+      Please note that make.names replaces illegal characters into dots, that we need to delete.
+    * I used "sub"" to delete the resulting "double dot"'s and the "dot at the end"'s.
 Note that this step already prepares the self-explanatory variable-names. So we do not need to change the variable-names of the resulting tidy data set anymore.
 
 **Step 5: Name all columns**
 Name the columns of the subsets of data from the test and train group:
+
     * testActs/trainActs get columnname "Activity"
     * testSubjects/trainSubjects get columnname "Subject"
-    * testSet/trainSet get the cleansed columnnames derived out of features (in the order of features.txt)
+    * testSet/trainSet get the cleansed columnnames derived out of features
+      (in the order of features.txt)
 
 **Step 6: Combine the columns**
 Combines the columns of the data from the test-/train groups in the order activity and subject followed by the measurement variables. That order is used because of later grouping based on requirement "for each activity and each subject").Using bind_cols() for speed.
@@ -124,10 +137,10 @@ I renamed the activities according to the actLabels given. To do so I interprete
 ## PART 4 - CREATING AND WRITING THE TIDY DATASET
 
 **Step 10: Sorting**
-Sort the resulting subSet on activity and then subject, making it easier to read and making sure grouping is done correctly later on
+Sort the resulting subSet on activity and then subject, making it easier to read and making sure grouping is done correctly later on. Used "varNames" as a character vector containing the names of only the measurement values (so without the first two columns Activity and Subject). That vector is used later on for melting the data set. 
 
 **Step 11: Melting**
-Melt the subSet into LONG form using varNames as a vector of all measurement variables. This makes all names of measurement vars explicit rows in new 'variable' column and makes all values of the measurement vars explicit rows in new 'value' column.
+Melt the subSet into LONG form using varNames as a vector with names of all measurement variables. Melting makes all names of measurement vars explicit rows in new 'variable' column and makes all values of the measurement vars explicit rows in new 'value' column.
 
 **Step 12: Casting**
 Used dcast to create a table in WIDE form again recreating all column names from the 'variable' column and taking the average of all columns for each uniqe activity/subject combination.
